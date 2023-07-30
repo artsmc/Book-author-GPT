@@ -1,0 +1,9 @@
+{
+  "plugins": ["./../node_modules/prettier-plugin-import-sort/src"],
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "trailingComma": "all",
+  "singleQuote": true,
+  "arrowParens": "always"
+}
