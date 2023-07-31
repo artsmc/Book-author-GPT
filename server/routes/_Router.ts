@@ -2,7 +2,6 @@ import * as rateLimit from 'express-rate-limit';
 import { Request, Response, Router } from 'express';
 import { AuthRouter } from './auth.routes';
 import { UserRouter } from './user.routes';
-import { CompanyRouter } from './company.routes';
 import { RolesRouter } from './roles.routes';
 import { ResponseRouter } from './reponse.routes';
 import { middlewareController } from '../controllers/middlware.controller';
@@ -36,7 +35,6 @@ router.get('/test', (req: Request, res: Response) => {
 });
 router.use('/auth', APILimiter, AuthRouter);
 router.use('/user', APILimiter, UserRouter);
-router.use('/company', APILimiter, middlewareController.isAuth, CompanyRouter);
 router.use('/role', APILimiter, middlewareController.isAuth, RolesRouter);
 router.use('/response', APILimiter, middlewareController.isAuth, ResponseRouter);
 router.use('/ebook', APILimiter, EBookRouter);

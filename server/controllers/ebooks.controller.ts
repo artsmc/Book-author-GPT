@@ -23,6 +23,7 @@ class EBooksController extends UtilController {
 
     async searchBooks(id, query): Promise<string> {
         const book = await epubParserService.getBook(id);
+        console.log(id, query, book);
         return await melvilleGPTController.searchBook(book.UUID, query, book);
     }
 
@@ -30,7 +31,7 @@ class EBooksController extends UtilController {
         try {
             const step = await this.searchBooks(id, message);
             console.log(body);
-            return await openAIService.BuildGPTBookResponse(message, step, {model:'gpt-3.5-turbo'});
+            return await openAIService.BuildGPTBookResponse(message, step, {model:'gpt-3.5-turbo-16k'});
         } catch (error){
             console.log({error});
             throw error;

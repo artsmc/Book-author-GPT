@@ -28,7 +28,7 @@ class MelvilleGPTController extends UtilController {
     returnBookMessage(id: string, message: string, transcript:IEbook) {
         return new Promise((resolve, reject) => {
             this.searchBook(id, message, transcript).then(step => {
-                openAIService.BuildGPTBookResponse(message, step, {model:'gpt-3.5-turbo'}).then(ready => {
+                openAIService.BuildGPTBookResponse(message, step, {model:'gpt-3.5-turbo-16k'}).then(ready => {
                     resolve(ready);
                 }).catch(error => {
                     console.log({error});

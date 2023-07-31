@@ -20,7 +20,7 @@ export class ResponseCreateController extends UtilController {
             newDoc.save().then((doc) => {
                 openAIService.BuildCustomCustomerResponse({
                     ...body
-                },{model:'gpt-3.5-turbo-16k'}).then((response) => {
+                },{model:'gpt-3.5-turbo-16k-16k'}).then((response) => {
                     doc.responseCreated = response;
                     doc.save().then((response) => {
                         resolve(response);

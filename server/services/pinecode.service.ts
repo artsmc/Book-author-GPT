@@ -12,34 +12,9 @@ class Pinecone extends UtilService {
         });
         return pinecone.Index(process.env.PINECONE_INDEX);
     }
-    insert(tid, content, index, size) {
-        return new Promise((resolve, reject) => {
-            openAIService.EmbedVector(tid, content, index).then(async embed => {
-                const id = this.token();
-                (await this.index()).upsert({
-                    upsertRequest: { 
-                        vectors: [{
-                            id,
-                            'values': embed.vector,
-                            'metadata': { 'transcript': embed.namspace, index, size },
-                        }],
-                        namespace: embed.namspace
-                    }
-                })
-                    .then(ready => resolve({ id, ready }))
-                    .catch(error => {
-                        console.log(error.data);
-                        reject(error.data);
-                    });
-            }).catch(error => {
-                console.log({ error });
-                reject({ error });
-            });
-        });
-    }
     insertBook(tid, content, index, size, chapter) {
         return new Promise((resolve, reject) => {
-            openAIService.EmbedVector(tid, content, index).then(async embed => {
+            openAIService.EmbedVector(tid.toString(), content, index).then(async embed => {
                 const id = this.token();
                 (await this.index()).upsert({
                     upsertRequest: { 
@@ -63,14 +38,39 @@ class Pinecone extends UtilService {
             });
         });
     }
+    insert(tid, content, index, size) {
+        return new Promise((resolve, reject) => {
+            openAIService.EmbedVector(tid, content, index).then(async embed => {
+                const id = this.token();
+                (await this.index()).upsert({
+                    upsertRequest: { 
+                        vectors: [{
+                            id,
+                            'values': embed.vector,
+                            'metadata': { 'transcript': tid.toString(), index, size },
+                        }],
+                        namespace: tid.toString()
+                    }
+                })
+                    .then(ready => resolve({ id, ready }))
+                    .catch(error => {
+                        console.log(error.data);
+                        reject(error.data);
+                    });
+            }).catch(error => {
+                console.log({ error });
+                reject({ error });
+            });
+        });
+    }
     update(id, tid, content, index, size) {
         return new Promise((resolve, reject) => {
             openAIService.EmbedVector(tid, content, index).then(async embed => {
                 (await this.index()).update({
                     updateRequest: {
                         id,
-                        namespace: embed.namspace,
-                        setMetadata: { 'transcript': embed.namspace, index, size },
+                        namespace: tid.toString()||tid,
+                        setMetadata: { 'transcript': tid.toString()||tid, index, size },
                         values: embed.vector
                     }
                 })
@@ -90,12 +90,14 @@ class Pinecone extends UtilService {
             openAIService.EmbedVector(tid, content).then(async embed => {
                 (await this.index()).query({
                     queryRequest: {
-                        namespace: embed.namspace,
+                        namespace: tid.toString()||tid,
                         includeMetadata: true,
-                        topK: querySize||4000,
+                        topK: querySize,
                         vector: embed.vector
                     }
-                }).then(ready => resolve(ready.matches))
+                }).then(ready => {
+                    resolve(ready.matches)
+                })
                     .catch(error => {
                         console.log(error);
                         reject({ error });
@@ -106,7 +108,7 @@ class Pinecone extends UtilService {
     delete(ids: string[], tid: string) {
         return new Promise(async (resolve, reject) => {
             (await this.index()).delete1({
-                ids, deleteAll: false, namespace:tid
+                ids, deleteAll: false, namespace: tid
             }).then(ready => resolve(ready))
                 .catch(error => {
                     console.log(error);
@@ -116,7 +118,9 @@ class Pinecone extends UtilService {
     }
     deleteIndex(tid: string) {
         return new Promise(async (resolve, reject) => {
-            (await this.index()).delete1({ids:[], deleteAll: true, namespace:tid}).then(ready => resolve(ready))
+            (await this.index()).delete1({
+                ids: [], deleteAll:true, namespace:tid
+            }).then(ready => resolve(ready))
                 .catch(error => {
                     console.log(error);
                     reject({ error });

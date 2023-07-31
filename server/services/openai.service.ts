@@ -49,7 +49,7 @@ class OpenAIService extends UtilService {
     }
 
     private async OpenAIChatRequest(messages: {role:string,content:string}[],options?:IOpenAICompletionDefault, quality?: string) {
-        const modelId = quality || 'gpt-3.5-turbo';
+        const modelId = quality || 'gpt-3.5-turbo-16k';
         const settings: IOpenAICompletionDefault = { model: modelId };
 
         try {
