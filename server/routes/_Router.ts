@@ -6,6 +6,8 @@ import { RolesRouter } from './roles.routes';
 import { ResponseRouter } from './reponse.routes';
 import { middlewareController } from '../controllers/middlware.controller';
 import { EBookRouter } from './ebook.routes';
+import { TranscriptRouter } from './transcript.routes';
+import { AskGaryRouter } from './askgary.routes';
 
 // Assign router to the express.Router() instance
 const router: Router = Router();
@@ -33,11 +35,11 @@ const APILimiterFeirce = rateLimit({
 router.get('/test', (req: Request, res: Response) => {
   res.status(200).json({});
 });
-router.use('/auth', APILimiter, AuthRouter);
-router.use('/user', APILimiter, UserRouter);
 router.use('/role', APILimiter, middlewareController.isAuth, RolesRouter);
+router.use('/transcript', APILimiter, TranscriptRouter);
 router.use('/response', APILimiter, middlewareController.isAuth, ResponseRouter);
 router.use('/ebook', APILimiter, EBookRouter);
+router.use('/ask', APILimiter, AskGaryRouter);
 
 
 export const ExpressRouter: Router = router;

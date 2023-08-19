@@ -9,44 +9,19 @@ export let transcriptValidationSchema = Joi.object({
 
 export let transcriptSchema: Schema = new Schema(
   {
-    audio: {
-      type: Schema.Types.ObjectId,
-      ref: 'Audio',
-      autopopulate: true
-    },
-    podcast: {
-      type: Schema.Types.ObjectId,
-      ref: 'Podcast',
-      autopopulate: true
-    },
-    tone: {
-      type: Schema.Types.ObjectId,
-      ref: 'Tones',
-      autopopulate: true
-    },
-    style: {
-      type: Schema.Types.ObjectId,
-      ref: 'Styles',
-      autopopulate: true
-    },
-    podcast_name: { type: String },
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: 'Users',
-    },
+    audio: { type: String },
     status: { type: String },
     aiKey: { type: String },
+    language: { type: String },
     jobName: { type: String },
+    namespace:{ type: String},
+    sentiment_analysis: { type: String },
     start_at: { type: Number },
-    key: { type: String },
-    topic: { type: String },
     sentenceSplitNoStop: [{ type: String }],
     speakerCount: { type: Schema.Types.Mixed },
-
     vectorId: [{ type: String }],
     vectorSize: { type: Number },
     vectorQuerySize: { type: Number },
-    
     wordsSplit: [{ type: String }],
     dictionary: [{
       start_time: { type: Number },
@@ -56,7 +31,6 @@ export let transcriptSchema: Schema = new Schema(
     }],
     fullTranscript: { type: String },
     trimmedTranscript: { type: String },
-    headlineOptions: [{ type: String }],
     noStopWord: { type: String },
     transcriptStats: {
       tokens: { type: Number },
@@ -111,9 +85,6 @@ transcriptSchema.pre<any>('validate', function (next) {
   }
   if (!this.start_at) {
     this.start_at = 0;
-  }
-  if (!this.key) {
-    this.key = 'important point';
   }
   if (!this.is_active) {
     this.is_active = true;

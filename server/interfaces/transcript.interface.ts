@@ -9,6 +9,7 @@ export interface ITranscript extends Document {
   key: string;
   aiKey: string;
   jobName: string;
+  namespace: string;
   transcriptStats: {
     tokens?: number;
     summaryTokens?: number;
@@ -51,4 +52,14 @@ export interface ISpeakerSort extends Document {
     avg: string;
     high: string;
   };
+}
+
+export interface ISplitLines {
+  count: number;
+  splitStringMap: IStringMap[];
+}
+
+interface IStringMap {
+  text: string;
+  locationStart: number;
 }

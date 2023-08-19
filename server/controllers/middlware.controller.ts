@@ -7,6 +7,7 @@ import { UtilController } from './util.controller';
 import { jwtSecret } from '../_config/config';
 import {companyController } from './company/company.controller';
 import { registerValidationSchema } from '../validation/user.validation';
+import { TranscriptModel } from '../models/transcripts.model';
 
 class MiddlewareController extends UtilController  {
   constructor() {
@@ -65,7 +66,38 @@ class MiddlewareController extends UtilController  {
           .send(Boom.badRequest('invalid query', err.details));
       });
   }
-
+  validTranscript(req: Request, res: Response, next: () => void) {
+    const id = req.params.id;
+    // const user = req.body.decode.user._id;
+    // @ts-ignore
+    TranscriptModel.findOne({
+      _id: id
+    }, {
+      lean: true,
+      trimmedTranscript: 1,
+      fullTranscript: 1,
+      speakerSort: 1,
+      namespace: 1,
+      language: 1,
+      headlineOptions: 1,
+      status: 1,
+      audio: 1,
+      aiKey: 1,
+      vectorId: 1,
+      vectorQuerySize: 1
+    }).then(transcript => {
+      if (transcript === null) {
+        res.status(401).send(Boom.unauthorized('no transcript found', null));
+        return;
+      }
+      req.body.transcript = transcript;
+      next();
+    }).catch(err => {
+      console.log(err);
+      res.status(401).send(Boom.unauthorized('no transcript found', null));
+      return;
+    });
+  }
 }
 
 export const middlewareController = new MiddlewareController();

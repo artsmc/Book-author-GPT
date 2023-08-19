@@ -9,8 +9,8 @@ class EBooksController extends UtilController {
         super();
     }
 
-    async storeEBook(file) {
-        return await epubParserService.storeBook(file);
+    async storeEBook(file, namespace) {
+        return await epubParserService.storeBook(file, namespace);
     }
 
     async getEBook(id) {
@@ -26,7 +26,10 @@ class EBooksController extends UtilController {
         console.log(id, query, book);
         return await melvilleGPTController.searchBook(book.UUID, query, book);
     }
-
+    async searchBooksbyNamespace(id, query): Promise<string> {
+        console.log(id, query);
+        return await melvilleGPTController.searchNamespace(id, query);
+    }
     async returnMessage(id: string, message: string, body) {
         try {
             const step = await this.searchBooks(id, message);

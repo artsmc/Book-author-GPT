@@ -9,10 +9,46 @@ const assembly = axios.create({
     'content-type': 'application/json',
   },
 });
+const assemblyUpload = axios.create({
+  baseURL: 'https://api.assemblyai.com/v2',
+  headers: {
+    authorization: process.env.ASSEMBLY_AI,
+    'Transfer-Encoding' : "chunked"
+  },
+});
+const url = 'https://api.assemblyai.com/v2/upload';
+import * as fs from 'fs';
+import fetch from 'node-fetch';
 
 class AssemblyAIService extends UtilService {
-
-    public async TranscribeAudio(audioURL: string, multiple: boolean, speakerCount:number, token: string): Promise<any> {
+    public async UploadTranscript(file: string): Promise<string> {
+        return new Promise((resolve, reject) => {
+            fs.readFile(file, (err, data) => {
+                if (err) {
+                    return console.log(err);
+                }
+                const params = {
+                    headers: {
+                        "authorization": process.env.ASSEMBLY_AI,
+                        "Transfer-Encoding": "chunked"
+                    },
+                    body: data,
+                    method: 'POST'
+                };
+                fetch(url, params)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(`URL: ${data['upload_url']}`)
+                    resolve(data['upload_url']);
+                })
+                .catch((error) => {
+                    reject(error);
+                    console.error(`Error: ${error}`);
+                });
+            });
+        });
+    }
+    public async TranscribeAudio(audioURL: string, multiple: boolean, speakerCount:number): Promise<any> {
         const dataObject = {
             audio_url: audioURL,
             speaker_labels: speakerCount > 0 ? multiple : true,
@@ -20,10 +56,9 @@ class AssemblyAIService extends UtilService {
             auto_chapters: true,
             punctuate: true,
             format_text: true,
+            sentiment_analysis: true,
             disfluencies: true,
-            webhook_url: `${process.env.WEBHOOK_BASE}/hook/transcript?authorization=${token}`
-        }
-
+        };
         try {
             const res = await assembly.post(`/transcript`, dataObject);
             console.log(`Recieved a transcript: ${audioURL}\n ${res.data.id}`);

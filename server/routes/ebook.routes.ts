@@ -7,7 +7,7 @@ router.get('/test', (req: Request, res: Response) => {
   res.status(200).json({});
 });
   router.post('/upload', (req: Request, res: Response) => {
-    eBooksController.storeEBook(req.body.file).then(book => {
+    eBooksController.storeEBook(req.body.file, req.body.namespace).then(book => {
       res.status(200).json(book);
     })
     .catch(error => {
@@ -53,6 +53,15 @@ router.get('/test', (req: Request, res: Response) => {
   });
   router.post('/book/search/:id', (req: Request, res: Response) => {
     eBooksController.searchBooks(req.params.id, req.body.query).then(book => {
+      res.status(200).json(book);
+    })
+      .catch(error => {
+        console.error(error);
+        res.status(400).send(Boom.badRequest(error));
+    });
+  });
+  router.post('/search/', (req: Request, res: Response) => {
+    eBooksController.searchBooksbyNamespace(req.body.namespace, req.body.query).then(book => {
       res.status(200).json(book);
     })
       .catch(error => {

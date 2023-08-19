@@ -12,13 +12,13 @@ class Pinecone extends UtilService {
         });
         return pinecone.Index(process.env.PINECONE_INDEX);
     }
-    insertBook(tid, content, index, size, chapter) {
+    insertBook(tid, content, index, size, chapter, namespace) {
         return new Promise((resolve, reject) => {
             openAIService.EmbedVector(tid.toString(), content, index).then(async embed => {
                 const id = this.token();
                 (await this.index()).upsert({
                     upsertRequest: { 
-                        namespace: tid.toString(),
+                        namespace: namespace|| tid.toString(),
                         vectors: [{
                             id,
                             'values': embed.vector,
@@ -38,9 +38,9 @@ class Pinecone extends UtilService {
             });
         });
     }
-    insert(tid, content, index, size) {
+    insert(namespace, tid, content, index, size) {
         return new Promise((resolve, reject) => {
-            openAIService.EmbedVector(tid, content, index).then(async embed => {
+            openAIService.EmbedVector(namespace, content, index).then(async embed => {
                 const id = this.token();
                 (await this.index()).upsert({
                     upsertRequest: { 
@@ -49,7 +49,7 @@ class Pinecone extends UtilService {
                             'values': embed.vector,
                             'metadata': { 'transcript': tid.toString(), index, size },
                         }],
-                        namespace: tid.toString()
+                        namespace
                     }
                 })
                     .then(ready => resolve({ id, ready }))
@@ -85,7 +85,7 @@ class Pinecone extends UtilService {
             });
         });
     }
-    query(tid, content, querySize) {
+    query(tid, content, querySize): Promise<any[]> {
         return new Promise((resolve, reject) => {
             openAIService.EmbedVector(tid, content).then(async embed => {
                 (await this.index()).query({

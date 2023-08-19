@@ -17,17 +17,17 @@
         super();
     }
     //const state = new AudioModel({
-    public async storeBook(file: string) {
+    public async storeBook(file: string, namespace: string) {
       const eBook = path.join('./', `/uploads/${file}`);
       const epub = new EPub(eBook);
       const id = uuidv4();
-      const state = await this.parseEpub(epub, id);
+      const state = await this.parseEpub(epub, id, namespace);
       return this.saveState(state);
     }
     
-    private parseEpub(epub: any, id: string) {
+    private parseEpub(epub: any, id: string, namespace: string) {
       return new Promise<IEbook>(async (resolve, reject) => {
-        const size = 4000;
+        const size = 900;
         epub.on("end", async () => {
           const state = new EbookModel(epub.metadata);
           state.UUID = epub.metadata['UUID'] || id;
@@ -38,7 +38,7 @@
             try {
               const text = await this.getChapter(epub, chapter.id);
               const block = JSON.stringify(convert(text, options).replace(/\n/g, ""));
-              const sectionData = await this.processSection(chapter, block, id, size);
+              const sectionData = await this.processSection(chapter, block, id, size, namespace);
               state.sections.push(sectionData.section);
               state.vectorIds.push(...sectionData.vectorIds);
             } catch (err) {
@@ -62,13 +62,13 @@
       });
     }
     
-    private async processSection(chapter: any, block: string, id: string, size: number) {
+    private async processSection(chapter: any, block: string, id: string, size: number, namespace?: string) {
       const vectorIds = [];
       const splitSumm = this.splitFlatText(size, block).splitStringMap;
     
       for (const [idx, sectSumm] of splitSumm.entries()) {
         if (sectSumm) {
-          const thisResult = (await pineconeService.insertBook(id, sectSumm.text, idx, size, chapter.id))['id'];
+          const thisResult = (await pineconeService.insertBook(id, sectSumm.text, idx, size, chapter.id, namespace))['id'];
           vectorIds.push(thisResult);
         }
       }

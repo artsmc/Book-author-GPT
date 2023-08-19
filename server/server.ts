@@ -30,11 +30,6 @@ app.use((req, res, next) => {
   // Pass to next layer of middleware
   next();
 });
-app.use((req, res, next)  => {
-  console.log(req.originalUrl);
-  next();
-});
-// ROUTE /APP/api
 app.use(`/api/v1`, ExpressRouter);
 app.listen(app.get('port'), () => {
   console.log(
@@ -44,6 +39,12 @@ app.listen(app.get('port'), () => {
   );
   console.log('Press CTRL-C to stop\n');
 });
+app.use((req, res, next)  => {
+  console.log(req.originalUrl);
+  next();
+});
+// ROUTE /APP/api
+
 app.use(`/`, express.static('./client/dist/client/'));
 export default app;
 
